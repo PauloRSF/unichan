@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../screens/MediaViewer.dart';
 import '../utils/post_utils.dart';
 
@@ -44,13 +45,20 @@ class PostCardMedia extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MediaViewer(url)
-          ),
-        );
+      onTap: () async {
+        var type = getMediaType(url);
+        if(type == MediaType.ytvideo) {
+          if (await canLaunch(url)) {
+            await launch(url);
+          }
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MediaViewer(url)
+            ),
+          );
+        }
       },
       child: getMediaWidget(),
     );
