@@ -25,7 +25,7 @@ class PostCardMedia extends StatelessWidget {
             ),
           ),
         ),
-        errorWidget: (context, thumbUrl, error) => Icon(Icons.error, size: 40.0),
+        errorWidget: (context, thumbUrl, error) => Icon(Icons.cancel, size: 40.0),
         imageUrl: thumbUrl
       );
     }
@@ -37,7 +37,10 @@ class PostCardMedia extends StatelessWidget {
         children: <Widget>[
           getThumbnailWidget(),
           type == MediaType.video || type == MediaType.ytvideo ?
-            Icon(Icons.play_circle_filled, size: 70.0, color: (type == MediaType.ytvideo ? Colors.red : Colors.white))
+            Icon(
+              Icons.play_circle_filled,
+              size: 70.0,
+              color: (type == MediaType.ytvideo ? Colors.red : Colors.white))
             :
             Container()
         ],
