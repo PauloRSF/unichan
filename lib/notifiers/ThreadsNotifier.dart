@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../models/Post.dart';
+import '../utils/post_utils.dart';
 
 class ThreadsNotifier extends ChangeNotifier {
   final List<Post> posts = [];
@@ -12,5 +13,10 @@ class ThreadsNotifier extends ChangeNotifier {
 
   void removeAll() {
     posts.clear();
+  }
+
+  void sort(SortMethod method) {
+    sortPostsList(posts, method);
+    notifyListeners();
   }
 }
