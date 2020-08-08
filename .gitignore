@@ -44,3 +44,7 @@ app.*.map.json
 
 # Environment tools
 envtools/
+
+# TODOs
+TODO.txt
+
