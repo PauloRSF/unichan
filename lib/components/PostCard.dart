@@ -75,40 +75,30 @@ class _PostCardState extends State<PostCard> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RichText(
-                  textAlign: TextAlign.left,
-                  text: TextSpan(
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: 'ANÔNIMO',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.tealAccent[300]
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' | ${getPostTime()}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey
-                        ),
-                      ),
-                    ]
+                Text(
+                  'ANÔNIMO',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal[200]
                   ),
                 ),
-                RichText(
-                  textAlign: TextAlign.right,
-                  text: TextSpan(
-                    text: '#${post.no}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.grey
-                    ),
+                Text(
+                  getPostTime(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey
+                  ),
+                ),
+                Text(
+                  '#${post.no}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey
                   ),
                 ),
               ]
