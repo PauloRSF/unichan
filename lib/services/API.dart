@@ -27,7 +27,7 @@ class API {
       List<Post> posts = List<Post>();
       for (var i = 0; i < data['posts'].length; i++) {
         var post = Post.fromJson(data['posts'][i]);
-        post.isOp = (i == 0);
+        post.isOp = false;
         posts.add(post);
       }
       return posts;
