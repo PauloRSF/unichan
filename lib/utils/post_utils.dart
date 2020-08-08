@@ -30,9 +30,9 @@ TextStyle getSpanStyle(String tagClass) {
     case 'heading':
       return TextStyle(fontWeight: FontWeight.bold, color: Colors.red);
     case 'quote':
-      return TextStyle(color: Colors.green);
+      return TextStyle(color: Colors.lightGreen[300]);
     case 'rquote':
-      return TextStyle(color: Colors.pink);
+      return TextStyle(color: Colors.pink[200]);
     case 'spoiler':
       return TextStyle(color: Colors.grey);
     default:
@@ -41,6 +41,7 @@ TextStyle getSpanStyle(String tagClass) {
 }
 
 List<Post> sortPostsList(List<Post> posts, SortMethod method) {
+  var op = posts.removeAt(0);
   posts.sort((a, b) {
     switch(method) {
       case SortMethod.oldest:
@@ -49,6 +50,7 @@ List<Post> sortPostsList(List<Post> posts, SortMethod method) {
         return b.no - a.no;
     }
   });
+  posts.insert(0, op);
 
   return posts;
 }
