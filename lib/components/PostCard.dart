@@ -13,13 +13,19 @@ import '../models/Post.dart';
 import '../screens/MediaViewer.dart';
 import '../screens/Thread.dart';
 
-class PostCard extends StatelessWidget {
-  final controller = PageController(
-    initialPage: 0,
-  );
+class PostCard extends StatefulWidget {
   final Post post;
 
   PostCard({this.post});
+
+  @override
+  _PostCardState createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  final controller = PageController(initialPage: 0);
+  double currentMediaPage = 0;
+  Post post;
 
   String getPostTime() {
     var time = DateTime.fromMillisecondsSinceEpoch(post.time*1000);
@@ -28,6 +34,7 @@ class PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    post = widget.post;
     return Container(
       alignment: Alignment.bottomLeft,
       decoration: BoxDecoration(
@@ -43,6 +50,11 @@ class PostCard extends StatelessWidget {
             child: PageView(
               controller: controller,
               scrollDirection: Axis.horizontal,
+              onPageChanged: (page) {
+                setState(() {
+                  currentMediaPage = page * 1.0;
+                });
+              },
               children: List<Widget>.generate(post.files.length, (i) =>
                 PostCardMedia(post.files[i], post.thumbs[i])
               ),
@@ -59,7 +71,7 @@ class PostCard extends StatelessWidget {
               padding: const EdgeInsets.only(top: 8.0),
               child: DotsIndicator(
                 dotsCount: post.files.length,
-                position: 0,
+                position: currentMediaPage,
             ),
           ),
           Container(
