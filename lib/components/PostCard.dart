@@ -7,11 +7,15 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/html_parser.dart';
 import 'package:flutter_html/style.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:redux/redux.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 import '../components/PostCardMedia.dart';
 import '../components/PostCardBody.dart';
 import '../models/Post.dart';
 import '../screens/MediaViewer.dart';
 import '../screens/Thread.dart';
+import '../screens/PostDetail.dart';
+import '../states/posts_state.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -32,16 +36,45 @@ class _PostCardState extends State<PostCard> {
     return time.toString().replaceAll(new RegExp(r'\-'), '/').split('.')[0];
   }
 
+  List<Widget> getPostReplies(Function openFunc) {
+    var containers = List<Widget>();
+
+      for (var reply in post.repliesNos) {
+        containers.add(
+          GestureDetector(
+            onTap: () { openFunc(reply); },
+            child: Container(
+              child: Text(
+                reply.toString(),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xAA000000)
+                )
+              ),
+              margin: const EdgeInsets.only(right: 4.0, bottom: 4.0),
+              padding: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 1.0),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple[200],
+                borderRadius: BorderRadius.all(Radius.circular(4.0))
+              ),
+            )
+          ),
+        );
+      }
+
+    return containers;
+  }
+
   @override
   Widget build(BuildContext context) {
     post = widget.post;
     return Container(
       alignment: Alignment.bottomLeft,
       decoration: BoxDecoration(
-        color: Color(0xff303030),
+        color: Color(0xff18151E),
       ),
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-      margin: const EdgeInsets.only(bottom: 2.0),
       child: Column(
         children: <Widget>[
           post.thumbs.isEmpty ? Container() : Container(
@@ -60,8 +93,8 @@ class _PostCardState extends State<PostCard> {
               ),
             ),
             decoration: BoxDecoration(
-              color: Color(0xff404040),
-              borderRadius: BorderRadius.all(Radius.circular(4.0))
+              color: Color(0xff222028),
+              borderRadius: BorderRadius.all(Radius.circular(0.0))
             ),
           ),
           post.thumbs.length < 2 ?
@@ -72,6 +105,9 @@ class _PostCardState extends State<PostCard> {
               child: DotsIndicator(
                 dotsCount: post.files.length,
                 position: currentMediaPage,
+                decorator: DotsDecorator(
+                  activeColor: Colors.cyan[100],
+                )
             ),
           ),
           Container(
@@ -83,14 +119,7 @@ class _PostCardState extends State<PostCard> {
                   'ANÔNIMO',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.teal[200]
-                  ),
-                ),
-                Text(
-                  getPostTime(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey
+                    color: Colors.deepPurple[200]
                   ),
                 ),
                 Text(
@@ -98,11 +127,44 @@ class _PostCardState extends State<PostCard> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontStyle: FontStyle.italic,
-                    color: Colors.grey
+                    color: Color(0xff68666C)
                   ),
                 ),
               ]
             ),
+          ),
+          post.repliesNos.length != 0 ?
+            StoreConnector<PostsState, Store<PostsState>>(
+              converter: (store) => store,
+              builder: (context, store) {
+                return Container(
+                  alignment: Alignment.centerLeft,
+                  margin: const EdgeInsets.only(bottom: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Wrap(
+                    children: getPostReplies(
+                      (no) {
+                        var reppost = store.state.thread.firstWhere((p) => 
+                          p.no == no
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PostDetail(reppost)
+                          ),
+                        );
+                      }
+                    ),
+                  ),
+                );
+              }
+            ) : Container(),
+          SizedBox(
+            height: 1,
+            child: Container(
+              color: Color(0xff46444A),
+              margin: const EdgeInsets.symmetric(horizontal: 8.0)
+            )
           ),
           GestureDetector(
             onTap: () {
@@ -121,7 +183,27 @@ class _PostCardState extends State<PostCard> {
               post.replies,
               post.images
             ),
-          )
+          ),
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  getPostTime(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xff68666C)
+                  ),
+                ),
+                Icon(
+                  Icons.more_horiz,
+                  size: 24.0,
+                  color: Color(0xffE5E5E5)
+                )
+              ]
+            ),
+          ),
         ]
       ),
     );

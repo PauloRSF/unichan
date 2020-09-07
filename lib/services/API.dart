@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart';
 import '../models/Post.dart';
+import '../utils/post_utils.dart';
 
 class API {
   Future<List<Post>> getThreadsOps() async {
@@ -16,6 +17,8 @@ class API {
       }
     }
 
+    posts = setPostsReplies(posts);
+
     return posts;
   }
 
@@ -30,6 +33,9 @@ class API {
         post.isOp = false;
         posts.add(post);
       }
+
+      posts = setPostsReplies(posts);
+
       return posts;
     }
 

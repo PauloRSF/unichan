@@ -5,9 +5,12 @@ import 'package:flutter_html/html_parser.dart';
 import 'package:flutter_html/style.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:provider/provider.dart';
+import 'package:redux/redux.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 import '../screens/PostDetail.dart';
 import '../notifiers/ThreadsNotifier.dart';
 import '../utils/post_utils.dart';
+import '../states/posts_state.dart';
 
 class PostCardBody extends StatelessWidget {
   final String com;
@@ -60,23 +63,21 @@ class PostCardBody extends StatelessWidget {
   }
 
   Widget _htmlRenderedBody() {
-    return Consumer<ThreadsNotifier>(
-      builder: (context, thread, child) {
+    return StoreConnector<PostsState, Store<PostsState>>(
+      converter: (store) => store,
+      builder: (context, store) {
         return Html(
           data: com,
           onLinkTap: (url) async {
             RegExp abc = RegExp(r'^\/[a-z]+\/[a-z]+\/[0-9]+\.html#([0-9]+)$');
             if (abc.hasMatch(url)) {
-              var post = thread.posts.firstWhere((p) => 
+              var post = store.state.thread.firstWhere((p) => 
                 p.no.toString() == abc.firstMatch(url).group(1)
               );
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChangeNotifierProvider.value(
-                    value: thread,
-                    child: PostDetail(post),
-                  ),
+                  builder: (context) => PostDetail(post),
                 ),
               );
             } else if (await canLaunch(url)) {

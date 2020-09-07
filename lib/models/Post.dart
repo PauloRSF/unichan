@@ -7,10 +7,16 @@ class Post {
   final int images;
   final List<String> files;
   final List<String> thumbs;
+  final List<int> reply_to;
   bool op;
+  List<int> replies_nos;
 
   Post(this.no, this.sub, this.com, this.time, this.replies,
-    this.images, this.files, this.thumbs);
+    this.images, this.files, this.thumbs, this.reply_to);
+
+  List<int> get replyTo {
+    return this.reply_to;
+  }
 
   bool get isOp {
     return this.op;
@@ -18,6 +24,14 @@ class Post {
 
   void set isOp(bool _isOp) {
     this.op = _isOp;
+  }
+
+  List<int> get repliesNos {
+    return this.replies_nos;
+  }
+
+  void set repliesNos(List<int> _repliesNos) {
+    this.replies_nos = _repliesNos;
   }
 
   factory Post.fromJson(Map<String, dynamic> json){
@@ -60,6 +74,17 @@ class Post {
         thumbs.add('https://55chan.org/b/thumb/${file['tim']}${thumb_ext}');
       });
     }
+
+    var reps = List<int>();
+    var regExp = RegExp(r"highlightReply\(\'([0-9]+)\'");
+    if(json['com'] != null && !json['com'].isEmpty) {
+      var matches = regExp.allMatches(json['com']);
+      for (var match in matches) {
+        var match_str = match.group(1);
+        reps.add(int.parse(match_str));
+      }
+    }
+
     return Post(
       json['no'],
       json['sub'],
@@ -68,7 +93,8 @@ class Post {
       replies_num,
       images_num,
       files,
-      thumbs
+      thumbs,
+      reps
     );
   }
 

@@ -13,15 +13,10 @@ class PostDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Post #${post.no}'),
-        backgroundColor: Colors.teal[300],
+        title: Text('Post #${post.no}')
       ),
-      body: Container(
-        child: Consumer<ThreadsNotifier>(
-          builder: (context, thread, child) {
-            return PostCard(post: post);
-          }
-        )
+      body: SingleChildScrollView(
+        child: PostCard(post: post)
       )
     );
   }

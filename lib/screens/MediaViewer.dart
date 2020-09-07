@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:video_player/video_player.dart';
@@ -8,6 +9,7 @@ import 'package:http/http.dart';
 import 'package:dio/dio.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../utils/post_utils.dart';
+import '../components/VideoControlsOverlay.dart';
 
 class MediaViewer extends StatefulWidget {
   final String url;
@@ -61,35 +63,38 @@ class _MediaViewerState extends State<MediaViewer> {
     switch(widget.type) {
       case MediaType.video:
       return Scaffold(
-        body: Center(
-          child: _controller.value.initialized ?
-            AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _controller.value.isPlaying
-                      ? _controller.pause()
-                      : _controller.play();
-                  });
-                },
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: <Widget>[
-                    VideoPlayer(_controller),
-                    _PlayPauseOverlay(controller: _controller),
-                    VideoProgressIndicator(_controller, allowScrubbing: true),
-                  ],
+        body: _controller.value.initialized ?
+          Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Center(
+                child: AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
                 ),
-              )
-            )
-            :
-            Container(),
-      ),
-    );
+              ),
+              AnimatedSwitcher(
+                duration: Duration(milliseconds: 50),
+                reverseDuration: Duration(milliseconds: 200),
+                child: _controller.value.isPlaying ?
+                  Center()
+                  :
+                  VideoControlsOverlay(
+                    controller: _controller,
+                    onSave: () {
+                      saveMedia(url);
+                    }
+                  ),
+              ),
+            ],
+          )
+          :
+          Container(),
+      );
     case MediaType.image:
       return PhotoView(
         imageProvider: NetworkImage(url),
+        backgroundDecoration: BoxDecoration(color: Theme.of(context).backgroundColor)
       );
     }
   }
@@ -101,14 +106,9 @@ class _MediaViewerState extends State<MediaViewer> {
       appBar: AppBar(
         title: Text(widget.url.split('/').last),
         backgroundColor: Colors.transparent,
+        elevation: 0
       ),
       body: getViewer(widget.url),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          saveMedia(widget.url);
-        },
-        child: Icon(Icons.get_app),
-      ),
     );
   }
 
@@ -135,7 +135,7 @@ class _PlayPauseOverlay extends StatelessWidget {
           reverseDuration: Duration(milliseconds: 200),
           child: controller.value.isPlaying ?
             SizedBox.shrink()
-            : 
+            :
             Container(
               color: Colors.black26,
               child: Center(

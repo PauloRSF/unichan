@@ -54,3 +54,22 @@ List<Post> sortPostsList(List<Post> posts, SortMethod method) {
 
   return posts;
 }
+
+List<Post> setPostsReplies(List<Post> posts) {
+  var new_posts = List<Post>();
+
+  for (var i = 0; i < posts.length; i++) {
+    var post = posts[i];
+    var replies = posts.where((p) => p.replyTo.contains(post.no));
+    var ab = List<int>();
+
+    for (var reply in replies) {
+      ab.add(reply.no);
+    }
+
+    post.repliesNos = ab;
+    new_posts.add(post);
+  }
+
+  return new_posts;
+}

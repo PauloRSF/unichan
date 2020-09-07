@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
+import 'package:redux/redux.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 import '../notifiers/ThreadsNotifier.dart';
 import '../services/API.dart';
 import '../models/Post.dart';
 import '../components/PostCard.dart';
-import '../utils/post_utils.dart'; 
+import '../utils/post_utils.dart';
+import '../actions/actions.dart';
+import '../states/posts_state.dart';
 
 class Thread extends StatelessWidget {
   int no;
@@ -30,49 +34,51 @@ class Thread extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thread #${no}'),
-        backgroundColor: Colors.teal[300],
+        title: Text('Thread #${no}')
       ),
       body: FutureBuilder(
         future: getThreadPosts(),
         builder: (context, AsyncSnapshot snapshot){
           if(snapshot.hasData) {
-            return ChangeNotifierProvider(
-              create: (context) => ThreadsNotifier(),
-              child: Consumer<ThreadsNotifier>(
-                builder: (context, thread, child) {
-                  if(thread.posts.isEmpty) {
-                    thread.addAll(snapshot.data);
-                  }
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      thread.removeAll();
-                      return thread.addAll(await getThreadPosts());
-                    },
-                    child: Scrollbar(
-                      child: ListView.builder(
-                        itemCount: thread.posts.length,
-                        itemBuilder: (BuildContext ctxt, int index) {
-                          if (index == 0) {
-                            return Column(
-                              children: <Widget>[
-                                PostCard(post: thread.posts[index]),
-                                _commentsOptions(context, thread, thread.posts.length),
-                              ],
-                            );
-                          }
-                          return PostCard(post: thread.posts[index]);
-                        }
-                      ),
-                    ),
-                  );
+            return StoreConnector<PostsState, Store<PostsState>>(
+              converter: (store) => store,
+              builder: (context, store) {
+                if(store.state.thread.length == 0 || store.state.thread[0].no != snapshot.data[0].no) {
+                  store.dispatch(AddThreadPostsAction(snapshot.data));
                 }
-              ),
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    store.dispatch(AddThreadPostsAction(await getThreadPosts()));
+                  },
+                  child: Scrollbar(
+                    child: ListView.separated(
+                      itemCount: store.state.thread.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        if (index == 0) {
+                          return Column(
+                            children: <Widget>[
+                              PostCard(post: store.state.thread[index]),
+                              _commentsOptions(context, null, store.state.thread.length),
+                            ],
+                          );
+                        }
+                        return PostCard(post: store.state.thread[index]);
+                      }, 
+                      separatorBuilder: (context, index) {
+                        return Divider(
+                          color: Colors.black,
+                          thickness: 4.0
+                        );
+                      },
+                    ),
+                  ),
+                );
+              }
             );
           } else {
-            return SpinKitThreeBounce(
-              color: Colors.white,
-              size: 20.0,
+            return SpinKitRing(
+              color: Colors.deepPurple[200],
+              size: 50.0,
             );
           }
         }
